@@ -316,13 +316,24 @@
 
       // 3열 4행 그리드 생성
       gridArea.innerHTML = '';
+          // 기존 selectCourse 함수 내부의 item.innerText 대신 아래처럼 분리해서 넣으면 가독성이 극대화됩니다.
       verses.forEach((verse, index) => {
         const item = document.createElement('div');
         item.className = 'verse-grid-item';
-        item.innerText = `${index + 1}번 카드`;
+        
+        // ref에서 장절(괄호 부분)만 쪼개서 줄바꿈 처리하는 효과
+        const refTitle = verse.ref.split(' (')[0]; // "1. 성령"
+        const refDetail = verse.ref.includes(' (') ? '(' + verse.ref.split(' (')[1] : ''; // "(고전 3:16)"
+  
+        item.innerHTML = `
+          <div style="font-weight:700;">${refTitle}</div>
+          <div style="font-size:0.68rem; opacity:0.8; margin-top:2px;">${refDetail}</div>
+        `;
+        
         item.onclick = function() { showVerseDetail(index, this); };
         gridArea.appendChild(item);
       });
+
 
       gridArea.style.display = 'grid';
     }
