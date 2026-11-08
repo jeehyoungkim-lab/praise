@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>네비게이토 성경 암송</title>
+  <style>
+    :root {
+      --bg-color: #0b1a14;        /* 짙은 밤 녹색 배경 */
+      --card-bg: #142a21;         /* 아코디언 카드 배경 */
+      --card-hover: #1d3b2f;      /* 호버/선택 시 배경 */
+      --border-color: #234537;    /* 테두리 색상 */
+      --text-main: #e1efe6;       /* 본문 글자 (눈이 편안한 오프화이트) */
+      --text-sub: #9eb8a8;        /* 보조 글자 (차분한 쑥색) */
+      --accent-main: #6edcc4;     /* 큰 주제 & 구절 장절 포인트 */
+      --accent-sub: #a8e6cf;      /* 소주제 포인트 */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", sans-serif;
+      margin: 0 auto;
+      padding: 24px 16px;
+      max-width: 640px;
+      line-height: 1.7;
+      word-break: keep-all;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent-main);
+      margin: 0 0 6px 0;
+      letter-spacing: -0.5px;
+    }
+
+    p.subtitle {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin: 0;
+    }
+
+    /* 1단계: 대주제 코스 가로 배치 (3개의 사각형) */
+    .course-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .course-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 16px 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      word-break: keep-all;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70px;
+    }
+
+    .course-btn:hover {
+      background-color: var(--card-hover);
+      border-color: var(--accent-main);
+    }
+
+    .course-btn.active {
+      background-color: var(--card-hover);
+      border-color: var(--accent-main);
+      color: var(--accent-main);
+      box-shadow: 0 0 8px rgba(110, 220, 196, 0.2);
+    }
+
+    /* 2단계: 3열 4행 구절 카드 그리드 영역 (12구절이므로 3열 4행 배치) */
+    .grid-container {
+      display: none; /* 코스 선택 전에는 숨김 */
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .verse-grid-item {
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--accent-sub);
+      padding: 14px 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .verse-grid-item:hover {
+      background-color: var(--card-hover);
+    }
+
+    .verse-grid-item.active {
+      background-color: var(--card-bg);
+      border-color: var(--accent-main);
+      color: var(--accent-main);
+    }
+
+    /* 3단계: 하단 말씀 상세 출력 카드 */
+    .detail-container {
+      display: none; /* 카드 선택 전에는 숨김 */
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--accent-main);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 18px;
+      margin-top: 10px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .detail-ref {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--accent-main);
+      margin-bottom: 8px;
+    }
+
+    .detail-text {
+      font-size: 1rem;
+      color: var(--text-main);
+      margin: 0;
+      white-space: pre-line;
+      line-height: 1.7;
+    }
+
+    /* 페이드인 애니메이션 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>네비게이토 성경 암송</h1>
+    <p class="subtitle">탭하여 말씀을 확인하세요</p>
+  </header>
+
+  <main>
+    <!-- 1단계: 3개 코스 가로 사각형 버튼 -->
+    <div class="course-container">
+      <div class="course-btn" onclick="selectCourse('course1', this)">60구절 C</div>
+      <div class="course-btn" onclick="selectCourse('course2', this)">180구절 하나님</div>
+      <div class="course-btn" onclick="selectCourse('course3', this)">하나님의 이름</div>
+    </div>
+
+    <!-- 2단계: 3열 4행 그리드 (선택된 코스에 따라 JavaScript가 제어) -->
+    <div id="gridArea" class="grid-container"></div>
+
+    <!-- 3단계: 하단 말씀 본문 상세 출력 영역 -->
+    <div id="detailArea" class="detail-container">
+      <div id="detailRef" class="detail-ref"></div>
+      <p id="detailText" class="detail-text"></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 네비게이토 말씀 암송 카드</p>
+  </footer>
+
+  <script>
+    // 말씀 데이터베이스 (각 코스별 12구절 매핑)
+    // ※ 추후 'ref'(장절)와 'text'(본문) 내용을 원하는 말씀으로 수정하시면 됩니다.
+    const verseData = {
+      course1: [
+        { id: 1, ref: "60구절 C - 1번 구절", text: "여기에 60구절 C의 1번째 성경 말씀 내용을 입력하세요." },
+        { id: 2, ref: "60구절 C - 2번 구절", text: "여기에 60구절 C의 2번째 성경 말씀 내용을 입력하세요." },
+        { id: 3, ref: "60구절 C - 3번 구절", text: "여기에 60구절 C의 3번째 성경 말씀 내용을 입력하세요." },
+        { id: 4, ref: "60구절 C - 4번 구절", text: "여기에 60구절 C의 4번째 성경 말씀 내용을 입력하세요." },
+        { id: 5, ref: "60구절 C - 5번 구절", text: "여기에 60구절 C의 5번째 성경 말씀 내용을 입력하세요." },
+        { id: 6, ref: "60구절 C - 6번 구절", text: "여기에 60구절 C의 6번째 성경 말씀 내용을 입력하세요." },
+        { id: 7, ref: "60구절 C - 7번 구절", text: "여기에 60구절 C의 7번째 성경 말씀 내용을 입력하세요." },
+        { id: 8, ref: "60구절 C - 8번 구절", text: "여기에 60구절 C의 8번째 성경 말씀 내용을 입력하세요." },
+        { id: 9, ref: "60구절 C - 9번 구절", text: "여기에 60구절 C의 9번째 성경 말씀 내용을 입력하세요." },
+        { id: 10, ref: "60구절 C - 10번 구절", text: "여기에 60구절 C의 10번째 성경 말씀 내용을 입력하세요." },
+        { id: 11, ref: "60구절 C - 11번 구절", text: "여기에 60구절 C의 11번째 성경 말씀 내용을 입력하세요." },
+        { id: 12, ref: "60구절 C - 12번 구절", text: "여기에 60구절 C의 12번째 성경 말씀 내용을 입력하세요." }
+      ],
+      course2: [
+        { id: 1, ref: "180구절 하나님 - 1번", text: "여기에 180구절 하나님 코스의 1번째 성경 말씀 내용을 입력하세요." },
+        { id: 2, ref: "180구절 하나님 - 2번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 3, ref: "180구절 하나님 - 3번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 4, ref: "180구절 하나님 - 4번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 5, ref: "180구절 하나님 - 5번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 6, ref: "180구절 하나님 - 6번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 7, ref: "180구절 하나님 - 7번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 8, ref: "180구절 하나님 - 8번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 9, ref: "180구절 하나님 - 9번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 10, ref: "180구절 하나님 - 10번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 11, ref: "180구절 하나님 - 11번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 12, ref: "180구절 하나님 - 12번", text: "여기에 말씀 내용을 입력하세요." }
+      ],
+      course3: [
+        { id: 1, ref: "하나님의 이름 - 1번", text: "여기에 하나님의 이름 코스의 1번째 성경 말씀 내용을 입력하세요." },
+        { id: 2, ref: "하나님의 이름 - 2번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 3, ref: "하나님의 이름 - 3번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 4, ref: "하나님의 이름 - 4번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 5, ref: "하나님의 이름 - 5번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 6, ref: "하나님의 이름 - 6번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 7, ref: "하나님의 이름 - 7번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 8, ref: "하나님의 이름 - 8번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 9, ref: "하나님의 이름 - 9번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 10, ref: "하나님의 이름 - 10번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 11, ref: "하나님의 이름 - 11번", text: "여기에 말씀 내용을 입력하세요." },
+        { id: 12, ref: "하나님의 이름 - 12번", text: "여기에 말씀 내용을 입력하세요." }
+      ]
+    };
+
+    let currentSelectedCourse = '';
+
+    // 코스 선택 시 3열 4행 그리드를 동적으로 생성하는 함수
+    function selectCourse(courseKey, element) {
+      // 대주제 활성화 스타일 토글
+      document.querySelectorAll('.course-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      currentSelectedCourse = courseKey;
+      const verses = verseData[courseKey];
+      const gridArea = document.getElementById('gridArea');
+      const detailArea = document.getElementById('detailArea');
+      
+      // 하단 상세 영역은 초기화 후 숨김
+      detailArea.style.display = 'none';
+
+      // 3열 4행 그리드 생성
+      gridArea.innerHTML = '';
+      verses.forEach((verse, index) => {
+        const item = document.createElement('div');
+        item.className = 'verse-grid-item';
+        item.innerText = `${index + 1}번 카드`;
+        item.onclick = function() { showVerseDetail(index, this); };
+        gridArea.appendChild(item);
+      });
+
+      gridArea.style.display = 'grid';
+    }
+
+    // 그리드 안의 카드 클릭 시 하단에 장절 및 본문을 출력하는 함수
+    function showVerseDetail(index, element) {
+      // 그리드 아이템 활성화 스타일 토글
+      document.querySelectorAll('.verse-grid-item').forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+
+      const verse = verseData[currentSelectedCourse][index];
+      
+      document.getElementById('detailRef').innerText = verse.ref;
+      document.getElementById('detailText').innerText = verse.text;
+      
+      // 하단 상세조회 카드 노출
+      document.getElementById('detailArea').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
